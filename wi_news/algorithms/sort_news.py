@@ -15,6 +15,13 @@ from sklearn.pipeline import Pipeline
 from wi_news.algorithms.vectorization import NLP, LLM, filter_word
 
 
+def sort_news(query, data, **kwargs):
+    "functional sorting"
+    sorter = NewsSorter(query, **kwargs)
+    data = sorter.sort(data, **kwargs)
+    return data
+
+
 @dataclass
 class Query:
     "data of the query"
@@ -37,7 +44,7 @@ class NewsSorter:
 
     """
 
-    def __init__(self, query, ngram_range=(1, 3), date=None):
+    def __init__(self, query, ngram_range=(1, 3), date=None, **kwargs):
         self.ngram_range = ngram_range
         self.query = self._preprocess_query(query)
         if date is None:
@@ -69,9 +76,14 @@ class NewsSorter:
             sorted data
 
         """
+        if len(data) == 0:
+            return data
+
         func = getattr(self, f"_score_by_{method}", None)
         if not func:
             raise ValueError(f"invalid value for @method: {method}")
+        if self.query.vector is None:
+            func = self._score_by_tfidf
         data, scores = func(data, **kwargs)
 
         if by_date:
@@ -94,9 +106,6 @@ class NewsSorter:
     def _score_by_none(self, data, **kwargs):
         data = np.asarray(data)
         return data, np.ones(len(data), dtype=float)
-
-    def _score_by_statistics(self, data, **kwargs):
-        pass
 
     def _score_by_embeddings(self, data, **kwargs):
         "return cosine sim between query and data, higher is better"
