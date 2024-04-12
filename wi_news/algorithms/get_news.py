@@ -17,8 +17,8 @@ if not API_KEY:
 URL = "https://newsapi.org/v2/everything"
 
 
-def get_news(keywords=None, sortBy="popularity", searchIn="title,description",
-             pageSize=100, language='en',
+def get_news(keywords=None, sort_by="popularity", search_in="title,description",
+             page_size=100, language='en',
              **kwargs):
     """
     get news via news api
@@ -31,9 +31,9 @@ def get_news(keywords=None, sortBy="popularity", searchIn="title,description",
     """
     params = {
         'q': keywords,
-        'sortBy': sortBy,
-        'searchIn': searchIn,
-        'pageSize': pageSize,
+        'sortBy': sort_by,
+        'searchIn': search_in,
+        'pageSize': page_size,
         'language': language,
     }
     kwargs.update(params)
@@ -44,6 +44,7 @@ def get_news(keywords=None, sortBy="popularity", searchIn="title,description",
         headers={
             'X-Api-Key': API_KEY,
         },
+        timeout=10,
     )
     data = response.json()
 
