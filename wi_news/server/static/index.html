@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>WI News</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+            crossorigin="anonymous" />
+    </head>
+    <body id="app">
+        <div v-if="searching" class="fixed-top h-100 w-100 d-flex justify-content-center align-items-center" style="background-color: rgba(200, 200, 200, .4)">
+            <p>Searching...</p>
+        </div>
+        <div id="navbar" class="navbar py-0 sticky-top" style="background-color:ghostwhite;">
+            <div class="container-fluid pt-2 pb-1 px-2" style="background-color:cadetblue; color:ghostwhite">
+                <h1>WI News</h1>
+                <form id="search-bar" class="d-flex justify-content-between ms-2 me-2 px-2 py-2" @submit.prevent="getNews()">
+                    <input class="form-control mx-1" id="search" v-model="search" required
+                        placeholder="Please input keywords for search...">
+                    <div class="">
+                        <button class="btn btn-primary mx-1"
+                            style="background-color: darkseagreen;border: 0px;">Search</button>
+                    </div>
+                </form>
+            </div>
+            <ul class="nav nav-tabs">
+                <li class="nav-item" v-for="key in Object.keys(data)">
+                    <button :class="'nav-link ' + (key === category ? 'active' : '')" aria-current="page" @click="changeCategory(key)">{{key}}</button>
+                </li>
+            </ul>
+        </div>
+        <div id="container" class="d-flex justify-content-center">
+            <div class="col-12 col-lg-8" v-if="category">
+                <div v-for="cid in clusters[category].labels" class="mt-4 pt-3 pb-1 px-2" style="border-bottom: 1px solid darkseagreen ;">
+                    <div class="w-100 mb-1">
+                        <span class="d-flex justify-content-around align-bottom">
+                            <h4 class="align-self-center">{{`Topic ${cid + 1}`}}</h4>
+                            <a class="card-link"
+                                v-for="hashtag in clusters[category].hashtags[cid].map((x) => `#${x}`)">{{hashtag}}</a>
+                        </span>
+                    </div>
+                    <div class="articles-top-3">
+                        <div class="card bg-light px-3 py-2 mb-2"
+                            v-for="article in data[category].filter((x) => x.cluster === cid).slice(0, 3)">
+                            <img v-if="article.urlToImage" :src="article.urlToImage" alt="image of news">
+                            <h5 class="card-title"><a :href="article.url" target="_blank">{{article.title}}</a></h5>
+                            <h6 class="card-subtitle text-muted">{{ `${article.author}@${article.source.name} -
+                                ${article.publishedAt}`}}</h6>
+                            <p class="card-body" v-if="article.description">{{article.description}}</p>
+                            <span><a class="card-link" v-for="hashtag in article.hashtags.map((x) => `#${x}`)">{{hashtag}}</a></span>
+                        </div>
+                        <div class="justify-content-center align-items-center d-flex mb-1" >
+                            <a v-if="data[category].filter((x) => x.cluster === cid).length > 3" class="text-muted" onclick="showMore(this)" :for="`other${cid}`">
+                                --------show more--------
+                            </a>                        
+                        </div>
+                    </div>
+                    <div class="articles-others" :id="`other${cid}`" hidden>
+                        <div class="card bg-light px-3 py-2 mb-2"
+                        v-for="article in data[category].filter((x) => x.cluster === cid).slice(3)">
+                            <img v-if="article.urlToImage" :src="article.urlToImage" alt="image of news">
+                            <h5 class="card-title"><a :href="article.url" target="_blank">{{article.title}}</a></h5>
+                            <h6 class="card-subtitle text-muted">{{ `${article.author}@${article.source.name} -
+                                ${article.publishedAt}`}}</h6>
+                            <p class="card-body" v-if="article.description">{{article.description}}</p>
+                            <span><a class="card-link" v-for="hashtag in article.hashtags.map((x) => `#${x}`)">{{hashtag}}</a></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            crossorigin="anonymous"></script>
+        <script type="module">
+            import { createApp } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
+            createApp({
+                data() {
+                    return {
+                        searching: false,
+                        search: "",
+                        category: "",
+                        clusters: {},
+                        data: {},
+                    }
+                },
+                methods: {
+                    async getNews() {
+                        this.searching = true;
+                        try {
+                            const response = await fetch(`/api/get_news?q=${this.search}`, {method: 'GET'});
+                            const json = await response.json();
+                            this.searching = false;
+                            if (!response.ok) {
+                                alert(json.message);
+                                return;
+                            }
+                            this.clusters = json.clusters;
+                            this.data = json.data;
+                            this.category = Object.keys(json.data)[0];
+                        } catch (err) {
+                            this.searching = false;
+                            console.log(err);
+                            alert("Unexpected error occurred, please change another keyword...")
+                            return;
+                        }
+                    },
+                    changeCategory(cate) {
+                        this.category = cate;
+                    }
+                }
+            }).mount('#app');
+        </script>
+        <script>
+            function showMore(target) {
+                const other = document.getElementById(target.getAttribute('for'));
+                other.hidden = !other.hidden;
+                target.innerText = `--------${other.hidden ? 'show more': 'show less'}--------`;
+            }
+        </script>
+    </body>
+</html>
