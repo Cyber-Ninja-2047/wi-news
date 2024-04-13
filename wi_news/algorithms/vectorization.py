@@ -42,6 +42,13 @@ def filter_word(x):
     return not x.is_stop and (x.is_alpha or x.is_digit)
 
 
+def _get_str(article, key):
+    val = article.get(key)
+    if not val:
+        return ""
+    return val
+
+
 def preprocess(article):
     """
     preprocessing for the article
@@ -70,9 +77,9 @@ def preprocess(article):
     text = (
         article["title"]
         + ". "
-        + article.get("description", "")
+        + _get_str(article, "description")
         + ". "
-        + article.get("content", "")
+        + _get_str(article, "content")
     )
     text = REG_REPLACE.sub(" ", text)
 
@@ -84,8 +91,7 @@ def preprocess(article):
     doc = NLP(text)
 
     # lemma
-    lemma = ' '.join(map(lambda x: x.lemma_,
-                     filter(filter_word, doc)))
+    lemma = " ".join(map(lambda x: x.lemma_, filter(filter_word, doc)))
 
     # split into sentences
     sentences = []
@@ -102,8 +108,13 @@ def preprocess(article):
     # hashtags pool
     hashtags_pool = get_pool(doc)
 
-    published_at = datetime.fromisoformat(article['publishedAt'])
+    published_at = datetime.fromisoformat(article["publishedAt"])
 
-    return Article(raw=article, text=text, lemma=lemma,
-                   vector=vector, hashtags_pool=hashtags_pool,
-                   time=published_at)
+    return Article(
+        raw=article,
+        text=text,
+        lemma=lemma,
+        vector=vector,
+        hashtags_pool=hashtags_pool,
+        time=published_at,
+    )

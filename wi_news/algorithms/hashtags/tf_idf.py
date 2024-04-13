@@ -43,7 +43,10 @@ def _extract_by_tfidf(data, n_hashtags, n_words, reverse_idf=0, **kwargs):
     pipeline = get_tfidf_pipeline(n_words)
 
     texts = [" ".join(d.hashtags_pool) for d in data]
-    result = pipeline.fit_transform(texts)
+    try:
+        result = pipeline.fit_transform(texts)
+    except ValueError:
+        return np.array([[] for _ in data])
 
     # reverse idf to get origin tf or tfdf
     for _ in range(reverse_idf):

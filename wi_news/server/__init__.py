@@ -5,8 +5,9 @@ Created on Fri Apr 12 22:53:30 2024
 
 @author: anthony
 """
+import os
 import numpy as np
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from wi_news.algorithms.get_news import get_news
 from wi_news.algorithms.vectorization import preprocess
 from wi_news.algorithms.clustering import cluster_data
@@ -14,13 +15,20 @@ from wi_news.algorithms.sort_news import sort_news
 from wi_news.algorithms.hashtags import extract_by_tfidf, extract_for_clusters
 
 
-app = Flask("wi-news-server")
+STATIC_PATH = os.path.join(os.path.split(__file__)[0], "static")
+
+app = Flask(
+    "wi-news-server",
+    static_url_path="/",
+    static_folder=STATIC_PATH,
+)
 
 
 # TODO: call the true classifier
 def temporary_classify(data):
     "waiting for the classifier"
-    return {"news": data}
+    length = len(data) // 2
+    return {"cate1": data[:length], "cate2": data[length:]}
 
 
 @app.route("/api/get_news")
@@ -31,7 +39,10 @@ def api_get_news():
         return jsonify({"message": "Please input some keywords."}), 400
 
     # vectorization
-    articles = get_news(query)["articles"]
+    articles = [
+        a for a in get_news(query)["articles"]
+        if a["title"] and a["title"] != "[Removed]"
+    ]
     if len(articles) == 0:
         return jsonify({"message": "No news found."}), 404
     data = np.asarray([preprocess(a) for a in articles], object)
