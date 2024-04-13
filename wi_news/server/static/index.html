@@ -11,19 +11,17 @@
         <div v-if="searching" class="fixed-top h-100 w-100 d-flex justify-content-center align-items-center" style="background-color: rgba(200, 200, 200, .4)">
             <p>Searching...</p>
         </div>
-        <div id="navbar" class="navbar py-0 sticky-top" style="background-color:ghostwhite;">
-            <div class="container-fluid pt-2 pb-1 px-2" style="background-color:cadetblue; color:ghostwhite">
+        <div id="navbar" class="w-100 navbar py-0 sticky-top" style="background-color:ghostwhite;">
+            <div class="d-flex justify-content-between w-100 pt-2 pb-1 px-2" style="background-color:cadetblue; color:ghostwhite">
                 <h1>WI News</h1>
                 <form id="search-bar" class="d-flex justify-content-between ms-2 me-2 px-2 py-2" @submit.prevent="getNews()">
-                    <input class="form-control mx-1" id="search" v-model="search" required
+                    <input class="form-control mx-1 h-60" id="search" v-model="search" required
                         placeholder="Please input keywords for search...">
-                    <div class="">
-                        <button class="btn btn-primary mx-1"
+                        <button class="btn btn-primary mx-1 h-60"
                             style="background-color: darkseagreen;border: 0px;">Search</button>
-                    </div>
                 </form>
             </div>
-            <ul class="nav nav-tabs">
+            <ul class="nav nav-tabs w-100">
                 <li class="nav-item" v-for="key in Object.keys(data)">
                     <button :class="'nav-link ' + (key === category ? 'active' : '')" aria-current="page" @click="changeCategory(key)">{{key}}</button>
                 </li>
@@ -33,10 +31,12 @@
             <div class="col-12 col-lg-8" v-if="category">
                 <div v-for="cid in clusters[category].labels" class="mt-4 pt-3 pb-1 px-2" style="border-bottom: 1px solid darkseagreen ;">
                     <div class="w-100 mb-1">
-                        <span class="d-flex justify-content-around align-bottom">
-                            <h4 class="align-self-center">{{`Topic ${cid + 1}`}}</h4>
-                            <a class="card-link"
-                                v-for="hashtag in clusters[category].hashtags[cid].map((x) => `#${x}`)">{{hashtag}}</a>
+                        <span class="d-flex justify-content-around align-bottom row">
+                            <h4 class="align-self-center col-12 col-lg-4">{{`Topic ${cid + 1}`}}</h4>
+                            <div class="col-12 col-lg-7 d-flex justify-content-between">
+                                <a class="card-link" v-for="hashtag in clusters[category].hashtags[cid].map((x) => `#${x}`)">{{hashtag}}</a>
+                            </div>
+                            
                         </span>
                     </div>
                     <div class="articles-top-3">
