@@ -34,7 +34,7 @@
                         <span class="d-flex justify-content-around align-bottom row">
                             <h4 class="align-self-center col-12 col-md-4">{{`Topic ${cid + 1}`}}</h4>
                             <div class="col-12 col-md-7 d-flex justify-content-between">
-                                <a class="card-link" v-for="hashtag in clusters[category].hashtags[cid].map((x) => `#${x}`)">{{hashtag}}</a>
+                                <a class="card-link" v-for="hashtag in clusters[category].hashtags[cid].filter(Boolean).map((x) => `#${x}`)">{{hashtag}}</a>
                             </div>
                             
                         </span>
@@ -47,7 +47,7 @@
                             <h6 class="card-subtitle text-muted">{{ `${article.author}@${article.source.name} -
                                 ${article.publishedAt}`}}</h6>
                             <p class="card-body" v-if="article.description">{{article.description}}</p>
-                            <span><a class="card-link" v-for="hashtag in article.hashtags.map((x) => `#${x}`)">{{hashtag}}</a></span>
+                            <span><a class="card-link" v-for="hashtag in article.hashtags.filter(Boolean).map((x) => `#${x}`)">{{hashtag}}</a></span>
                         </div>
                         <div class="justify-content-center align-items-center d-flex mb-1" >
                             <a v-if="data[category].filter((x) => x.cluster === cid).length > 4" class="text-muted" @click="toggleShowing(cid)">
@@ -63,7 +63,7 @@
                             <h6 class="card-subtitle text-muted">{{ `${article.author}@${article.source.name} -
                                 ${article.publishedAt}`}}</h6>
                             <p class="card-body" v-if="article.description">{{article.description}}</p>
-                            <span><a class="card-link" v-for="hashtag in article.hashtags.map((x) => `#${x}`)">{{hashtag}}</a></span>
+                            <span><a class="card-link" v-for="hashtag in article.hashtags.filter(Boolean).map((x) => `#${x}`)">{{hashtag}}</a></span>
                         </div>
                     </div>
                 </div>

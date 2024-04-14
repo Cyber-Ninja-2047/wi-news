@@ -10,7 +10,9 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.pipeline import Pipeline
 
 
-def extract_by_tfidf(data, n_hashtags=3, n_words=50, method="tfidf", **kwargs):
+def extract_by_tfidf(
+    data, n_hashtags=3, n_words=None, method="tfidf", **kwargs
+):
     """
     extract hashtags from processed data.
 
@@ -58,7 +60,14 @@ def _extract_by_tfidf(data, n_hashtags, n_words, reverse_idf=0, **kwargs):
     words = np.array(words).T[1]
 
     # get hashtags
-    hashtags = words[result.toarray().argsort()[:, -1 : -1 - n_hashtags : -1]]
+    result = result.toarray()
+    top_n = result.argsort(axis=1)[:, -1 : -1 - n_hashtags : -1]
+    hashtags = words[top_n]
+
+    # remove hashtags not in the article
+    for row_tag, row_res, row_top in zip(hashtags, result, top_n):
+        row_tag[row_res[row_top] == 0] = ""
+
     return hashtags
 
 
