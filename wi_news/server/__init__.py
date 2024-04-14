@@ -58,6 +58,8 @@ def api_get_news():
     dict_data = {}
     to_return = {"clusters": clusters, "data": dict_data}
     for category, data in datas.items():
+        if len(data) == 0:
+            continue
         model = cluster_data(data)
         labels = model.labels_
 

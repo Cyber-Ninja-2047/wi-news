@@ -1423,6 +1423,17 @@ files = [
 typing-extensions = ">=4.6.0,<4.7.0 || >4.7.0"
 
 [[package]]
+name = "pyinflect"
+version = "0.5.1"
+description = "A python module for word inflections designed for use with Spacy."
+optional = false
+python-versions = "*"
+files = [
+    {file = "pyinflect-0.5.1-py3-none-any.whl", hash = "sha256:94f052d48939bd4748942d807b2b87f15dcb94acb32b99d7162dba5d37188ea8"},
+    {file = "pyinflect-0.5.1.tar.gz", hash = "sha256:b512834f6fecc56d7aa10c9a40dca1e9fb66fbb4d72ffc55760d58e53070ba0a"},
+]
+
+[[package]]
 name = "pyparsing"
 version = "3.1.2"
 description = "pyparsing module - Classes and methods to define and execute parsing grammars"
@@ -2618,4 +2629,4 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "56be29f5549f424ed7f300e68c531ae48dcaa7d53e1dac9f564b4ec9e29b6acf"
+content-hash = "75707fba923ba703fd656d81e58af1108d43939230a9eef4501659ea390cd000"

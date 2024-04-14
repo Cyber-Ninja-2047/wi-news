@@ -5,6 +5,7 @@ Created on Fri Apr 12 15:03:43 2024
 
 @author: kibtia
 """
+from dataclasses import dataclass
 import numpy as np
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.mixture import GaussianMixture
@@ -19,13 +20,21 @@ _NAME_TO_CLAZZ = {
     "agglomerative": AgglomerativeClustering,
 }
 
+@dataclass
+class FakeModel:
+    labels_ : list
 
-def cluster_data(data, methods=("kmeans",), k_range=(2, 10)):
+
+def cluster_data(data, methods=("kmeans",), k_range=(2, 11)):
     """
     cluster with different different parameters.
     return best_model.labels_
 
     """
+    length = len(data)
+    if len(data) < 2:
+        return FakeModel(labels_=np.zeros_like(data))
+
     # scale the data
     samples = np.asarray([d.vector for d in data])
     scaler = StandardScaler()
@@ -41,7 +50,7 @@ def cluster_data(data, methods=("kmeans",), k_range=(2, 10)):
     for method in methods:
         models = [
             _get_model(method, n_clusters=k).fit(samples)
-            for k in range(*k_range)
+            for k in range(*k_range) if k <= length
         ]
 
         # evaluations
