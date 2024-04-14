@@ -10,7 +10,7 @@ import numpy as np
 from flask import Flask, request, jsonify
 from wi_news.algorithms.get_news import get_news
 from wi_news.algorithms.vectorization import preprocess
-# from wi_news.algorithms.classification import classify
+from wi_news.algorithms.classification import classify
 from wi_news.algorithms.clustering import cluster_data
 from wi_news.algorithms.sort_news import sort_news
 from wi_news.algorithms.hashtags import extract_by_tfidf, extract_for_clusters
@@ -31,10 +31,12 @@ def api_get_news():
     query = request.args.get("q")
     if not query:
         return jsonify({"message": "Please input some keywords."}), 400
+    to_classify = request.args.get("c") == "true"
 
     # vectorization
     articles = [
-        a for a in get_news(query)["articles"]
+        a
+        for a in get_news(query)["articles"]
         if a["title"] and a["title"] != "[Removed]"
     ]
     if len(articles) == 0:
@@ -45,8 +47,10 @@ def api_get_news():
     data = sort_news(query, data)
 
     # classification
-    # datas = classify(data)
-    datas = {"All News": data}  # mute the classifier because of low performance
+    if to_classify:
+        datas = classify(data)
+    else:
+        datas = {"All News": data}
 
     # clustering
     clusters = {}
