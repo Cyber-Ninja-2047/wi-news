@@ -20,7 +20,7 @@ with open(os.path.join(path, "clf.pkl"), "rb") as f:
     CLASSIFIER = pickle.load(f)
 
 
-CATEGORIES = ['Unknown', 'COMEDY', 'ENTERTAINMENT', 'SPORTS', 'PARENTING', 'POLITICS']
+CATEGORIES = ["Others", "POLITICS", "SPORTS", "COMEDY"]
 CATEGORIES = [c.title() for c in CATEGORIES]
 
 
