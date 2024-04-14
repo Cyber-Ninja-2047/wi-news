@@ -9,6 +9,7 @@ from queue import Queue
 from treelib import Tree
 import numpy as np
 from dataclasses import dataclass
+from pyinflect import INFLECTION_INST
 from .cosine import extract_by_cosine
 from .tf_idf import extract_by_tfidf, get_tfidf_pipeline
 
@@ -103,6 +104,9 @@ class KeywordsExtractor:
             keyword = self.__get_keyword(target)
             self.pool_.append(keyword)
 
+        # get keywords from verb root
+        self.pool_.extend(self._extract_from_verb(sent.root))
+
         return self.pool_
 
     def _build_tree(self, sent):
@@ -110,13 +114,40 @@ class KeywordsExtractor:
         while not self.queue.empty():
             self.__read_next_token()
 
+    def __get_conjs(self, token):
+        to_return = [token]
+        for child in token.children:
+            if child.dep_ == "conj":
+                to_return.append(child)
+        return to_return
+
+    def _extract_from_verb(self, token):
+        # a special rule for verb
+        if not token.pos_ == "VERB":
+            return []
+
+        event = INFLECTION_INST.spacyGetInfl(token, "VBG")
+        keywords = []
+        objs = filter(
+            lambda x: "dobj" in x.dep_ and not x.is_stop, token.children
+        )
+        for obj in objs:
+            for conj in self.__get_conjs(obj):
+                keywords.append(f"{conj.lemma_}_{event}")
+        return keywords
+
+    def __justify_target(self, parent, token):
+        is_target = (
+            any((x in token.dep_ for x in self.__target_dep))
+            or (token.dep_ == "conj" and parent in self.__targets)
+            # or (token.dep_ == "attr" and token.pos_ == "NOUN")
+        )
+        return is_target and not token.is_stop
+
     def __read_next_token(self):
         parent, token = self.queue.get()
-        is_target = token.dep_ in self.__target_dep or (
-            token.dep_ == "conj" and parent in self.__targets
-        )
 
-        if is_target and not token.is_stop:
+        if self.__justify_target(parent, token):
             self.__targets.add(token)
         self.tree_.create_node(
             f'{token.text} {token.pos_} {token.dep_} {"stopword" if token.is_stop else ""}',

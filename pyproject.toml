@@ -15,6 +15,7 @@ requests = "^2.31.0"
 numpy = "^1.26.4"
 scikit-learn = "^1.4.1.post1"
 treelib = "^1.7.0"
+pyinflect = "^0.5.1"
 
 
 [tool.poetry.group.dev.dependencies]
