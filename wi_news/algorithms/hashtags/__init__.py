@@ -140,7 +140,7 @@ class KeywordsExtractor:
         is_target = (
             any((x in token.dep_ for x in self.__target_dep))
             or (token.dep_ == "conj" and parent in self.__targets)
-            or (token.dep_ == "attr" and token.pos_ == "NOUN")
+            # or (token.dep_ == "attr" and token.pos_ == "NOUN")
         )
         return is_target and not token.is_stop
 
