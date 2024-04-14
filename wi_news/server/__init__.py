@@ -7,9 +7,10 @@ Created on Fri Apr 12 22:53:30 2024
 """
 import os
 import numpy as np
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify
 from wi_news.algorithms.get_news import get_news
 from wi_news.algorithms.vectorization import preprocess
+# from wi_news.algorithms.classification import classify
 from wi_news.algorithms.clustering import cluster_data
 from wi_news.algorithms.sort_news import sort_news
 from wi_news.algorithms.hashtags import extract_by_tfidf, extract_for_clusters
@@ -22,13 +23,6 @@ app = Flask(
     static_url_path="/",
     static_folder=STATIC_PATH,
 )
-
-
-# TODO: call the true classifier
-def temporary_classify(data):
-    "waiting for the classifier"
-    length = len(data) // 2
-    return {"cate1": data[:length], "cate2": data[length:]}
 
 
 @app.route("/api/get_news")
@@ -51,7 +45,8 @@ def api_get_news():
     data = sort_news(query, data)
 
     # classification
-    datas = temporary_classify(data)
+    # datas = classify(data)
+    datas = {"All News": data}  # mute the classifier because of low performance
 
     # clustering
     clusters = {}

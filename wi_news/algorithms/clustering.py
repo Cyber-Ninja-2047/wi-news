@@ -20,9 +20,10 @@ _NAME_TO_CLAZZ = {
     "agglomerative": AgglomerativeClustering,
 }
 
+
 @dataclass
 class FakeModel:
-    labels_ : list
+    labels_: list
 
 
 def cluster_data(data, methods=("kmeans",), k_range=(2, 11)):
@@ -32,7 +33,7 @@ def cluster_data(data, methods=("kmeans",), k_range=(2, 11)):
 
     """
     length = len(data)
-    if len(data) < 2:
+    if len(data) < 3:
         return FakeModel(labels_=np.zeros_like(data))
 
     # scale the data
@@ -48,10 +49,17 @@ def cluster_data(data, methods=("kmeans",), k_range=(2, 11)):
     # find best for each method
     model_scores = []
     for method in methods:
-        models = [
-            _get_model(method, n_clusters=k).fit(samples)
-            for k in range(*k_range) if k <= length
-        ]
+        models = sum(
+            (
+                [
+                    _get_model(method, n_clusters=k).fit(samples)
+                    for _ in range(2)
+                ]  # run twice for every k
+                for k in range(*k_range)
+                if k + 1 <= length
+            ),
+            [],
+        )
 
         # evaluations
         scores = [_evaluate(m, samples) for m in models]
